@@ -1,0 +1,85 @@
+{%  extends "base.html" %}
+
+{% block content %}
+<title>Simple tables</title>
+<div class=page>
+  <h1>Matched ASs</h1>
+    <div class="table-controls">
+          <button id="download-csv">Download CSV</button>
+          <button id="download-json">Download JSON</button>
+    </div> 
+    <div id="example-table"></div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.3.3/css/tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.3.3/js/tabulator.min.js"></script>
+    <script>
+        var ASset=new Set();
+        var ASs=[];
+        var as="";
+       $("#example-table").tabulator({
+        height:"292px",
+        layout:"fitColumns",
+        pagination:"local",
+        paginationSize:40,
+        movableColumns:true,
+        movableRows:true,
+        columns: {{ columns|safe }}
+        rowClick:function(e, row){ //trigger an alert message when the row is clicked
+            as=row.getData().ASNumber.slice(2)
+            if (ASset.has(as)) {
+                ASset.delete(as);
+            } else {
+                ASset.add(as);
+            }
+            ASs=Array.from(ASset);    
+            if (ASs.length!=0){
+                $("#kcore-evolution").attr("src","/TMA2018/queries/plot/as_evolution.png?ASs=".concat(ASs.toString()).concat("&from_th={{form.from_threshold.data}}&to_th={{form.to_threshold.data}}"));
+	    } else {
+                $("#kcore-evolution").attr("src","/TMA2018/queries/plot/as_evolution.png?from_th={{form.from_threshold.data}}&to_th={{form.to_threshold.data}}");
+            }
+        },
+    });
+    //load sample data into the table
+    $("#example-table").tabulator("setData", "/TMA2018/queries/query?from_month={{form.from_month.data}}&from_year={{form.from_year.data}}&from_th={{form.from_threshold.data}}&to_month={{form.to_month.data}}&to_year={{form.to_year.data}}&to_th={{form.to_threshold.data}}&maximum={{form.maximum_months.data}}");
+
+    //trigger download of data.csv file
+    $("#download-csv").click(function(){
+        $("#example-table").tabulator("download", "csv", "data_{{form.from_month.data}}-{{form.from_year.data}}_to_{{form.to_month.data}}-{{form.to_year.data}}_max_months-{{form.maximum_months.data}}.csv");
+    });
+
+    //trigger download of data.json file
+    $("#download-json").click(function(){
+        $("#example-table").tabulator("download", "json", "data_{{form.from_month.data}}-{{form.from_year.data}}_to_{{form.to_month.data}}-{{form.to_year.data}}_max_months-{{form.maximum_months.data}}.csv");
+    });
+
+    </script>
+
+  <img id="kcore-evolution" src="/TMA2018/queries/plot/as_evolution.png?from_th={{form.from_threshold.data}}&to_th={{form.to_threshold.data}}" algt="kcore-evolution" style="width:100%">
+
+  <h1> Submit your query</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        From
+        <p> {{ form.from_threshold.label }}
+            {{ form.from_threshold() }}
+            {{ form.from_month.label }}
+            {{ form.from_month() }}
+            {{ form.from_year.label }}
+            {{ form.from_year() }}
+        </p>
+        To
+        <p> {{ form.to_threshold.label }}
+            {{ form.to_threshold() }}
+            {{ form.to_month.label }}
+            {{ form.to_month() }}
+            {{ form.to_year.label }}
+            {{ form.to_year() }}
+        </p>
+        <p> {{ form.maximum_months.label}}
+            {{ form.maximum_months() }}
+    <p>{{ form.submit() }}</p>
+    </form>
+</div>
+{% endblock %}
+

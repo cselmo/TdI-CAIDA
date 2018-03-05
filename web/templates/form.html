@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1> Submit your query</h1>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        From
+        <p> {{ form.from_threshold.label }}
+            {{ form.from_threshold() }}
+            {{ form.from_month.label }}
+            {{ form.from_month() }}
+            {{ form.from_year.label }}
+            {{ form.from_year() }}
+        </p>
+        To
+        <p> {{ form.to_threshold.label }}
+            {{ form.to_threshold() }}
+            {{ form.to_month.label }}
+            {{ form.to_month() }}
+            {{ form.to_year.label }}
+            {{ form.to_year() }}
+        </p>
+        <p> {{ form.maximum_months.label}}
+            {{ form.maximum_months() }}
+    <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
